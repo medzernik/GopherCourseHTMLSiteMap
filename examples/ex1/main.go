@@ -3,7 +3,6 @@ package main
 import (
 	link "HTMLLinkParser"
 	"flag"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -69,20 +68,15 @@ func getAWebPageBody(url string) []link.Link {
 
 }
 
-//checks and orders the links
-func evaluateLinks(links *[]link.Link) {
-	var linksToVisit [][]link.Link
-	for i, j := range *links {
-		//visit a link, get all the links from it, then write to an XML?
-		nestedLinks := getAWebPageBody(j.Href)
-		j.Visited = true
-		for k := range nestedLinks {
-			linksToVisit[k] = append(checkLinksDomainValid(nestedLinks), j)
+var alreadyVisitedLinks = make(map[link.Link]bool)
 
-			evaluateLinks(linksToVisit)
-		}
-		fmt.Printf("Links to visit in a domain: %+v", j)
+//checks and orders the links (recursive function)
+func evaluateLinks(links *[]link.Link) {
+	var linksToVisitFurther []link.Link
+	for _, j := range *links {
+		alreadyVisitedLinks[j] = true
 	}
+	evaluateLinks(&linksToVisitFurther)
 
 }
 
